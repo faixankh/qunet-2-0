@@ -1,0 +1,7 @@
+
+baseline:
+  model:
+    transformer_layers: 0
+    deep_supervision: false
+    use_cross_attention: false
+

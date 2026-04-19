@@ -1,0 +1,6 @@
+
+dataset:
+  name: OCT
+  modalities: [oct_volume]
+  classes: [normal, disease_a, disease_b, disease_c]
+

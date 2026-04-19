@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pt
+*.pth
+*.onnx
+*.png
+*.jpg
+*.jpeg
+*.csv
+*.parquet
+runs/
+outputs/
+data/
+.ipynb_checkpoints/

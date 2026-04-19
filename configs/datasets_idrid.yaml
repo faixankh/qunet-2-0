@@ -1,0 +1,6 @@
+
+dataset:
+  name: IDRiD
+  modalities: [fundus, lesion_maps]
+  classes: [normal, dr, severe]
+

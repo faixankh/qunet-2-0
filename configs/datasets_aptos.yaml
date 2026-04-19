@@ -1,0 +1,6 @@
+
+dataset:
+  name: APTOS
+  modalities: [fundus]
+  classes: [0,1,2,3,4]
+
