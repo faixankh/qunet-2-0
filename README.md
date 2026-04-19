@@ -1,23 +1,27 @@
 # QUNet 2.0
 
-A multimodal retinal imaging project for diabetic retinopathy screening, lesion segmentation, grading, and calibrated uncertainty estimation.
+QUNet 2.0 is a research codebase for retinal lesion segmentation, disease grading, and uncertainty-aware inference. It combines a convolutional branch for local lesion detail with a transformer branch for wider anatomical context, then fuses both streams before task-specific heads.
 
-## What this repository is for
+![Architecture overview](assets/architecture_diagram.png)
 
-This repository is built as a serious portfolio project, not a toy notebook. It is organized like a small research codebase with:
+## Problem setting
 
-- a CNN + Transformer backbone
-- a second branch for OCT features
-- segmentation, grading, and uncertainty heads
-- deep supervision and calibration utilities
-- training, evaluation, and prediction entry points
-- FastAPI and Streamlit interfaces
-- ONNX export support
-- a sample-data path for local execution
+Retinal images contain small lesions, irregular contrast, and strong class imbalance. A single backbone often misses either fine lesion structure or global context. This repository addresses that with a multi-branch design, calibrated outputs, and separate segmentation and grading pathways.
 
-## Visual overview
+## What the system contains
 
-![Architecture diagram](assets/architecture_diagram.png)
+- convolutional encoder for local texture and boundary detail
+- transformer encoder for long-range retinal context
+- cross-branch fusion and multi-scale aggregation
+- segmentation head for lesion localization
+- classification head for disease grading
+- uncertainty and calibration utilities for safer inference
+- evaluation scripts for Dice, AUC, calibration, and confusion analysis
+- FastAPI service and Streamlit demo for interactive use
+- ONNX export path for deployment
+- automated tests and CI workflow
+
+## Visual summary
 
 ![Training curve](assets/training_curve.png)
 
@@ -25,72 +29,56 @@ This repository is built as a serious portfolio project, not a toy notebook. It 
 
 ![Confusion matrix](assets/confusion_matrix.png)
 
-## Sample outputs
-
 ![Sample prediction](assets/sample_prediction.png)
 
-![Demo workspace](assets/demo_ui.png)
+![Demo interface](assets/demo_ui.png)
 
-![Metric summary](assets/metrics_card.png)
+## Main entry points
 
-## Representative output snapshot
-
-| Metric | Value |
-|---|---:|
-| Dice | 0.918 |
-| AUC | 0.971 |
-| Sensitivity | 0.884 |
-| Specificity | 0.963 |
-| ECE | 0.028 |
-| Parameters | ~1.2M |
-
-These figures come from the included local demo path so the repository shows visible outputs on GitHub even without protected medical datasets.
-
-## Repository layout
-
-- `src/qunet2/` — package code
-- `configs/` — dataset and experiment settings
-- `scripts/` — sample-data generation utilities
-- `assets/` — images used in the README
-- `results/` — additional output summaries
-- `docs/` — architecture, dataset, deployment, and experiment notes
-- `tests/` — basic unit and shape tests
-
-## Quick start
+Run the project from the repository root:
 
 ```bash
-pip install -r requirements.txt
+python train.py
+python evaluate.py
+python predict.py
+python demo.py
+python api.py
+python main.py
+```
+
+Package entry points are also available:
+
+```bash
 python -m qunet2.cli train --config configs/default.yaml
 python -m qunet2.cli evaluate --config configs/default.yaml
 python -m qunet2.cli demo
 ```
 
-## Entry points
+## Repository map
 
-- Training: `python -m qunet2.cli train --config configs/default.yaml`
-- Evaluation: `python -m qunet2.cli evaluate --config configs/default.yaml`
-- Demo: `python -m qunet2.cli demo`
+```text
+src/qunet2/          main package code
+assets/              figures used in the README
+results/             metrics, summaries, exported outputs
+configs/             dataset and experiment configuration
+docs/                method, usage, deployment, and experiment notes
+scripts/             data and utility scripts
+tests/               automated checks
+```
 
-## Datasets
+## Reproducibility
 
-The code is aligned with:
-- IDRiD-style lesion segmentation
-- APTOS-style grading
-- OCT-style auxiliary structure input
+The repository is set up so the code can run without restricted medical datasets. Synthetic data generation is included for local testing, CI, and GitHub review. Real datasets such as IDRiD, APTOS, and OCT can be wired in through the configuration files.
 
-A sample-data generator is included so the project remains runnable without restricted medical data.
+## Commands
 
-## Deployment notes
+```bash
+pip install -r requirements.txt
+python train.py
+python evaluate.py
+python demo.py
+```
 
-The repository includes:
-- a FastAPI inference app
-- a Streamlit demo
-- ONNX export helpers
-- Docker support
+## Notes
 
-## Suggested GitHub improvements
-
-After pushing, add:
-- a short project description
-- topics such as `medical-imaging`, `pytorch`, `retina`, `segmentation`, `transformer`
-- a pinned release tag when the first full run is ready
+The code is organized as a proper Python package, not a notebook dump. The root launch scripts are convenience wrappers around the package modules, which keeps the project easy to review on GitHub and easy to run locally.

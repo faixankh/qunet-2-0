@@ -1,0 +1,7 @@
+{
+  "dice": 0.9015,
+  "auc": 0.9814,
+  "accuracy": 0.9704,
+  "calibration_error": 0.031,
+  "note": "Synthetic metrics bundle for repository review."
+}

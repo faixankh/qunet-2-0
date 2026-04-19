@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it."
+title: "QUNet 2.0"
+authors:
+  - family-names: Ahmed
+    given-names: Faizan
+version: 1.0.0

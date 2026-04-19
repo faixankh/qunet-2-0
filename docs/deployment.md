@@ -1,8 +1,3 @@
 # Deployment
 
-Targets:
-
-- FastAPI inference service
-- Streamlit demo
-- ONNX export
-- Docker-based local deployment
+The project includes a FastAPI app and a Streamlit interface for local or hosted demos.
