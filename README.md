@@ -1,12 +1,14 @@
 # QUNet 2.0
 
-QUNet 2.0 is a research codebase for retinal lesion segmentation, disease grading, and uncertainty-aware inference. It combines a convolutional branch for local lesion detail with a transformer branch for wider anatomical context, then fuses both streams before task-specific heads.
+QUNet 2.0 is a retinal imaging research codebase for lesion segmentation, disease grading, and uncertainty-aware inference. The model combines a convolutional branch for local lesion detail with a transformer branch for wider retinal context, then fuses both streams before the segmentation and classification heads.
 
 ![Architecture overview](assets/architecture_diagram.png)
 
 ## Problem setting
 
-Retinal images contain small lesions, irregular contrast, and strong class imbalance. A single backbone often misses either fine lesion structure or global context. This repository addresses that with a multi-branch design, calibrated outputs, and separate segmentation and grading pathways.
+Retinal fundus images are difficult to model because many clinically relevant lesions are small, low contrast, and unevenly distributed across the image. A purely local model can miss wider anatomical context, while a purely global model can smooth away tiny lesion boundaries.
+
+This repository studies that trade-off through a dual-branch architecture, calibrated outputs, and separate evaluation paths for segmentation and grading.
 
 ## What the system contains
 
@@ -15,10 +17,10 @@ Retinal images contain small lesions, irregular contrast, and strong class imbal
 - cross-branch fusion and multi-scale aggregation
 - segmentation head for lesion localization
 - classification head for disease grading
-- uncertainty and calibration utilities for safer inference
+- uncertainty and calibration utilities
 - evaluation scripts for Dice, AUC, calibration, and confusion analysis
-- FastAPI service and Streamlit demo for interactive use
-- ONNX export path for deployment
+- FastAPI service and Streamlit demo
+- ONNX export path for deployment experiments
 - automated tests and CI workflow
 
 ## Visual summary
@@ -34,8 +36,6 @@ Retinal images contain small lesions, irregular contrast, and strong class imbal
 ![Demo interface](assets/demo_ui.png)
 
 ## Main entry points
-
-Run the project from the repository root:
 
 ```bash
 python train.py
@@ -68,9 +68,7 @@ tests/               automated checks
 
 ## Reproducibility
 
-The repository is set up so the code can run without restricted medical datasets. Synthetic data generation is included for local testing, CI, and GitHub review. Real datasets such as IDRiD, APTOS, and OCT can be wired in through the configuration files.
-
-## Commands
+The code can run without restricted medical datasets. Synthetic data generation is included for local testing, CI, and GitHub review. Real datasets such as IDRiD, APTOS, and OCT can be wired in through the configuration files.
 
 ```bash
 pip install -r requirements.txt
@@ -79,6 +77,8 @@ python evaluate.py
 python demo.py
 ```
 
-## Notes
+## Result policy
 
-The code is organized as a proper Python package, not a notebook dump. The root launch scripts are convenience wrappers around the package modules, which keeps the project easy to review on GitHub and easy to run locally.
+The figures and example outputs included in this repository are meant to make the workflow inspectable. They should not be treated as final clinical benchmark claims unless they are regenerated from the relevant dataset configuration and archived with the corresponding metrics, logs, and qualitative predictions.
+
+For formal reporting, rerun the full training and evaluation pipeline, keep the exact configuration file, and save the generated result folder together with the model checkpoint.
