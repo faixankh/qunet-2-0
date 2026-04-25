@@ -1,84 +1,128 @@
 # QUNet 2.0
 
-QUNet 2.0 is a retinal imaging research codebase for lesion segmentation, disease grading, and uncertainty-aware inference. The model combines a convolutional branch for local lesion detail with a transformer branch for wider retinal context, then fuses both streams before the segmentation and classification heads.
+Retinal lesion segmentation, diabetic-retinopathy grading, and uncertainty-aware referral support with a CNN/Transformer fusion model and an explicit evidence pipeline.
 
-![Architecture overview](assets/architecture_diagram.png)
+![Architecture](assets/diagrams/architecture.svg)
 
-## Problem setting
+## Evidence preview
 
-Retinal fundus images are difficult to model because many clinically relevant lesions are small, low contrast, and unevenly distributed across the image. A purely local model can miss wider anatomical context, while a purely global model can smooth away tiny lesion boundaries.
+| Artifact | What it shows | Regenerate |
+|---|---|---|
+| `assets/diagrams/architecture.svg` | Implemented model/dataflow structure | `make sample-results` |
+| `assets/diagrams/evidence_pipeline.svg` | Evidence generation flow | `make sample-results` |
+| `results/charts/sample_training_curve.svg` | Deterministic sample-data metric trace | `make sample-results` |
+| `results/charts/runtime_profile.svg` | Runtime profile schema | `make sample-results` |
+| `results/simulation/state_timeline.svg` | Stepwise uncertainty trace | `make sample-results` |
 
-This repository studies that trade-off through a dual-branch architecture, calibrated outputs, and separate evaluation paths for segmentation and grading.
+![Sample training curve](results/charts/sample_training_curve.svg)
 
-## What the system contains
+![Runtime profile](results/charts/runtime_profile.svg)
 
-- convolutional encoder for local texture and boundary detail
-- transformer encoder for long-range retinal context
-- cross-branch fusion and multi-scale aggregation
-- segmentation head for lesion localization
-- classification head for disease grading
-- uncertainty and calibration utilities
-- evaluation scripts for Dice, AUC, calibration, and confusion analysis
-- FastAPI service and Streamlit demo
-- ONNX export path for deployment experiments
-- automated tests and CI workflow
-
-## Visual summary
-
-![Training curve](assets/training_curve.png)
-
-![Calibration curve](assets/calibration_curve.png)
-
-![Confusion matrix](assets/confusion_matrix.png)
-
-![Sample prediction](assets/sample_prediction.png)
-
-![Demo interface](assets/demo_ui.png)
-
-## Main entry points
+## Quickstart
 
 ```bash
-python train.py
-python evaluate.py
-python predict.py
-python demo.py
-python api.py
-python main.py
+git clone https://github.com/faixankh/qunet-2-0.git
+cd qunet-2-0
+python -m venv .venv
+python -m pip install -e .[dev]
+make sample-results
+make test
 ```
 
-Package entry points are also available:
+## Why this project exists
 
-```bash
-python -m qunet2.cli train --config configs/default.yaml
-python -m qunet2.cli evaluate --config configs/default.yaml
-python -m qunet2.cli demo
-```
+Retinal fundus analysis is difficult because clinically important lesions can be tiny, sparse, low contrast, and unevenly distributed across images. QUNet 2.0 keeps lesion segmentation, grading, and uncertainty estimation in the same inference path so weak or uncertain cases can be reviewed instead of being presented as clean predictions.
 
-## Repository map
+## Technical contribution
+
+- multi-scale CNN encoding for lesion texture and boundary detail
+- transformer bottleneck tokens for wider retinal context
+- optional OCT/auxiliary branch support
+- feature-pyramid fusion before segmentation and grading heads
+- segmentation, classification, and uncertainty outputs
+- deterministic sample-data evidence generation for smoke testing
+- real retinal dataset auditing for IDRiD/APTOS/EyePACS-style folders
+- tests for model shape behavior, metrics, losses, real dataset loading, and evidence generation
+
+The repository does not make state-of-the-art or deployment claims. Real dataset performance should be reported only after training and evaluating on a documented licensed split.
+
+## Repository structure
 
 ```text
-src/qunet2/          main package code
-assets/              figures used in the README
-results/             metrics, summaries, exported outputs
-configs/             dataset and experiment configuration
-docs/                method, usage, deployment, and experiment notes
-scripts/             data and utility scripts
-tests/               automated checks
+src/qunet2/              package code, CLI, model, dataset, evidence modules
+configs/                 sample and real-dataset configs
+scripts/                 result generation and real-dataset audit scripts
+docs/                    reproducibility, results, dataset, architecture notes
+results/                 generated sample-data evidence pack
+assets/diagrams/         generated architecture and evidence diagrams
+tests/                   pytest suite
 ```
 
-## Reproducibility
-
-The code can run without restricted medical datasets. Synthetic data generation is included for local testing, CI, and GitHub review. Real datasets such as IDRiD, APTOS, and OCT can be wired in through the configuration files.
+## Commands
 
 ```bash
-pip install -r requirements.txt
-python train.py
-python evaluate.py
-python demo.py
+make install
+make sample-results
+make demo
+make evaluate
+make test
 ```
 
-## Result policy
+Real retinal dataset audit:
 
-The figures and example outputs included in this repository are meant to make the workflow inspectable. They should not be treated as final clinical benchmark claims unless they are regenerated from the relevant dataset configuration and archived with the corresponding metrics, logs, and qualitative predictions.
+```bash
+make real-results DATA_ROOT=data/real_retina IMAGES_DIR=images MASKS_DIR=masks LABELS_CSV=labels.csv
+```
 
-For formal reporting, rerun the full training and evaluation pipeline, keep the exact configuration file, and save the generated result folder together with the model checkpoint.
+Direct command:
+
+```bash
+python -m qunet2.cli generate-results --mode real --data-root data/real_retina --output results/real_dataset --images-dir images --masks-dir masks --labels-csv labels.csv
+```
+
+## Real eye-dataset results
+
+Real fundus datasets are not committed to this repository. IDRiD, APTOS, EyePACS, and OCT datasets have license, size, and distribution constraints. The project provides a real-dataset results path instead of pretending that sample outputs are clinical evidence.
+
+Expected local layout:
+
+```text
+data/real_retina/
+  images/
+  masks/
+  labels.csv
+```
+
+The audit command writes:
+
+```text
+results/real_dataset/metrics.json
+results/real_dataset/evidence_manifest.json
+results/real_dataset/tables/dataset_audit.csv
+results/real_dataset/charts/image_size_profile.svg
+results/real_dataset/charts/mask_coverage_profile.svg
+results/real_dataset/charts/label_distribution.svg
+results/real_dataset/logs/dataset_audit_log.txt
+```
+
+These files are derived from actual image, mask, and label files. Dice, IoU, AUC, F1, calibration, and confusion matrices should be reported only after a trained checkpoint is evaluated on a fixed held-out split.
+
+## Evidence policy
+
+The committed files under `results/` are deterministic sample-data outputs. They check commands, schemas, and chart generation. They are not real clinical benchmark results.
+
+- `results/` = sample-data evidence unless the manifest says otherwise
+- `results/real_dataset/` = file-derived real dataset audit after local data is supplied
+- model-performance claims require a checkpoint, dataset split, metrics, logs, and exact config
+
+## Documentation
+
+- [Reproducibility](docs/reproducibility.md)
+- [Real retinal dataset results](docs/real_dataset_results.md)
+- [Results and evidence policy](docs/results.md)
+- [Architecture notes](docs/architecture.md)
+- [Dataset notes](docs/datasets.md)
+
+## License
+
+MIT. Dataset licenses remain governed by the original dataset providers.
